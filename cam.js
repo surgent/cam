@@ -113,13 +113,22 @@ cam.Capture = function() {
     var ctx = null;
     
     function started() {
-        return video != null && oUrl != null && stream != null && canvas != null && ctx != null;
+        return video != null && oUrl != null && stream != null;
     }
     
     function grabFrame() {
         if(!started())
             return;
-            
+
+        //this.captureContext2d() does not call grabFrame() so we try to avoid the extra
+        //canvas overhead associated with it by not creating one in this.start()
+        if(!canvas) {
+            canvas = document.createElement("canvas");
+            ctx = canvas.getContext("2d");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        }
+
         ctx.clearRect(0, 0, video.videoWidth, video.videoHeight);
         ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
     }
@@ -141,10 +150,6 @@ cam.Capture = function() {
             video = videoArg;
             oUrl = oUrlArg;
             stream = streamArg;
-            canvas = document.createElement("canvas");
-            ctx = canvas.getContext("2d");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
             video.play();
             
             //Skip first black frame on Chrome :/
