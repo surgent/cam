@@ -225,10 +225,9 @@ cam.Capture = function() {
     this.captureContext2d = function(context2d) {
         if(!(started() && context2d))
             return;
-            
-        grabFrame();
+
         var width = context2d.canvas.width;
         var height = context2d.canvas.height;
-        context2d.drawImage(canvas, 0, 0, width, height);
+        context2d.drawImage(video, 0, 0, width, height);
     }
 }
