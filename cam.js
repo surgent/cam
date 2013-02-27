@@ -36,7 +36,7 @@ cam = {};
 * @return true if camera capture is possible, false otherwise
 */
 cam.supported = function() {
-    return navigator.getUserMedia && window.URL;
+    return typeof(navigator.getUserMedia) != "undefined";
 }
 
 /**
@@ -52,11 +52,11 @@ cam.media = function(callback) {
     navigator.getUserMedia(
         {video:true, audio:false},
         function(stream) {
-            try {
+            try { //Chrome
                 var oUrl = window.URL.createObjectURL(stream);
                 callback(oUrl, stream);
             }
-            catch(err) { //Firefox
+            catch(err) { //Firefox and Opera
                 callback(stream, stream);
             }   
         },
