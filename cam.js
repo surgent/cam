@@ -155,6 +155,10 @@ cam.Capture = function() {
             //Skip first black frame on Chrome :/
             if(navigator.userAgent.indexOf("Chrome") >= 0)
                 setTimeout(function() { callback(this); }, 100);
+            //Let camera initialize on Opera :(
+            else if(navigator.userAgent.indexOf("Opera") >= 0)
+                setTimeout(function() { callback(this); }, 1200);
+            //Wow Firefox got something right ^_^
             else
                 callback(this);
         });
@@ -169,7 +173,9 @@ cam.Capture = function() {
         video.pause();
         video = null;
         oUrl = null;
-        stream.stop();
+        //No `LocalMediaStream.stop()` on Opera!?
+        if(typeof(stream.stop) != "undefined")
+            stream.stop();
         stream = null;
     }
     
