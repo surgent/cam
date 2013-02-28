@@ -286,6 +286,6 @@ cam.Capture = function() {
             return null;
             
         grabFrame(width, height);
-        return canvas.getImageData(0, 0, width, height);
+        return ctx.getImageData(0, 0, width, height);
     }
 }
