@@ -79,10 +79,8 @@ cam.video = function(callback) {
         if(oUrl == null || stream == null)
             callback(null, null, null);
     
-        if(typeof(video.mozSrcObject) != "undefined")
-            video.mozSrcObject = oUrl;
-        else
-            video.src = oUrl;
+        //Firefox 18 and lower uses mozSrcObject
+        video.src = video.mozSrcObject = oUrl;
 
         video.addEventListener('loadeddata', function() { callback(video, oUrl, stream); });
     });
@@ -111,6 +109,7 @@ cam.Capture = function() {
     var stream = null;
     var canvas = null;
     var ctx = null;
+    var _this = this;
     
     function started() {
         return video != null && oUrl != null && stream != null;
@@ -133,6 +132,45 @@ cam.Capture = function() {
         ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
     }
     
+    function waitFirstFrame(callback) {
+        //Firefox got it right
+        if(navigator.userAgent.indexOf("Chrome") < 0 && navigator.userAgent.indexOf("Opera") < 0) {
+            callback(_this);
+            return;
+        }
+
+        //Create a canvas to sample pixels from
+        var ctx;
+        if(arguments.length == 2)
+            ctx = arguments[1];
+        else {
+            var canvas = document.createElement("canvas");
+            //Sample a 4x4 grid (arbitrarily chosen)
+            canvas.width = 4;
+            canvas.height = 4;
+            ctx = canvas.getContext("2d");
+        }
+        
+        _this.captureContext2d(ctx);
+        
+        var idata = ctx.getImageData(0, 0, 4, 4);
+        var data = idata.data;
+        
+        //Sample pixels to see if we have a frame yet
+        for(var i = 0; i < 16; ++i) {
+            //Skip alpha channel
+            if(data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2] > 0) {
+                callback(_this);
+                return;
+            }
+        }
+        
+        //No frame yet, try again in a little bit
+        setTimeout(function() {
+            waitFirstFrame(callback, ctx);
+        }, 50);
+    }
+    
     /**
     * Starts a capturing session
     * @param callback Will be called with this object as a parameter when the camera is ready
@@ -141,26 +179,18 @@ cam.Capture = function() {
         cam.video(function(videoArg, oUrlArg, streamArg) {
             //Already started!
             if(started())
-                callback(this);
+                callback(_this);
                 
             //Failed to initialize :(
             if(videoArg == null || oUrlArg == null || streamArg == null)
-                callback(this);
+                callback(_this);
         
             video = videoArg;
             oUrl = oUrlArg;
             stream = streamArg;
             video.play();
             
-            //Skip first black frame on Chrome :/
-            if(navigator.userAgent.indexOf("Chrome") >= 0)
-                setTimeout(function() { callback(this); }, 100);
-            //Let camera initialize on Opera :(
-            else if(navigator.userAgent.indexOf("Opera") >= 0)
-                setTimeout(function() { callback(this); }, 1200);
-            //Wow Firefox got something right ^_^
-            else
-                callback(this);
+            waitFirstFrame(callback);
         });
     }
     
