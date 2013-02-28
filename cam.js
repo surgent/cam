@@ -79,7 +79,7 @@ cam.video = function(callback) {
         if(oUrl == null || stream == null)
             callback(null, null, null);
     
-        //Firefox 18 and lower uses mozSrcObject
+        //Firefox 18 uses mozSrcObject
         video.src = video.mozSrcObject = oUrl;
 
         video.addEventListener('loadeddata', function() { callback(video, oUrl, stream); });
