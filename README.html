@@ -1,0 +1,152 @@
+<h1>cam.js</h1>
+
+<p>A lightweight wrapper to simplify Javascript camera capture :)</p>
+
+<p>Provides browser agnostic shortcuts to get &lt;img&gt; and &lt;video&gt; DOM elements from a webcam.
+Also provides a Capture class for rapid successive still captures to data URLs, &lt;img&gt; DOM elements, or canvas 2d contexts.</p>
+
+<p>Currently supports Chrome, Opera, and Firefox.</p>
+
+<p>To get things working in Firefox go to "about:config", make your promise, search for "media.navigator.enabled", and double click it to set it to true if it is not already.
+Firefox support is a little buggy at the moment since getUserMedia() is not technically ready for prime-time on that browser yet (as of Firefox 19).</p>
+
+<h2>API Overview</h2>
+
+<ul>
+<li><p><strong>cam.supported()</strong></p>
+
+<blockquote>
+  <p>Returns true if camera capture is plausible</p>
+</blockquote></li>
+<li><p><strong>cam.media(callback)</strong></p>
+
+<blockquote>
+  <p>Gets an object url representing a camera stream for use as the src of &lt;video&gt; elements or null on error</p>
+
+<p><em>callback</em> Will be called with and when parameters <code>url</code> and <code>stream</code> are ready</p>
+
+<p>Be aware that some browsers will ask the user for permission to access the camera each time this is called</p>
+</blockquote></li>
+<li><p><strong>cam.video(callback)</strong></p>
+
+<blockquote>
+  <p>Gets a &lt;video&gt; DOM element with a camera attached as the video source or null on error</p>
+
+<p><em>callback</em> Will be called with and when parameters <code>video</code>, <code>url</code>, and <code>stream</code> are ready</p>
+
+<p>Be aware that some browsers will ask the user for permission to access the camera each time this is called</p>
+</blockquote></li>
+<li><p><strong>cam.image(callback)</strong></p>
+
+<blockquote>
+  <p>Opens the camera, gets an &lt;img&gt; DOM element from it or null on error and closes the camera</p>
+
+<p><em>callback</em> Will be called with parameter <code>img</code> once an &lt;img&gt; DOM element is captured</p>
+
+<p>Be aware that some browsers will ask the user for permission to access the camera each time this is called</p>
+</blockquote></li>
+<li><p><strong>cam.Capture</strong></p>
+
+<blockquote>
+  <p>Capture class for rapidly capturing multiple frames from the camera</p>
+</blockquote>
+
+<ul>
+<li><strong>start(callback)</strong></li>
+</ul>
+
+<blockquote>
+  <p>Starts a capturing session</p>
+
+<p><em>callback</em> Will be called with this object as a parameter when the camera is ready or null on error</p>
+</blockquote>
+
+<ul>
+<li><strong>stop()</strong></li>
+</ul>
+
+<blockquote>
+  <p>Stops a capturing session</p>
+</blockquote>
+
+<ul>
+<li><strong>width()</strong></li>
+</ul>
+
+<blockquote>
+  <p>Returns the width of the capture frame in pixels or null on error</p>
+</blockquote>
+
+<ul>
+<li><strong>height()</strong></li>
+</ul>
+
+<blockquote>
+  <p>Returns the height of the capture frame in pixels or null on error</p>
+</blockquote>
+
+<ul>
+<li><strong>captureDataURL()</strong></li>
+</ul>
+
+<blockquote>
+  <p>Returns a captured frame formated as a base64 encoded png image file or null on error</p>
+</blockquote>
+
+<ul>
+<li><strong>captureImage()</strong></li>
+</ul>
+
+<blockquote>
+  <p>Returns a captured frame in the form of an &lt;img&gt; DOM element or null on error</p>
+</blockquote>
+
+<ul>
+<li><strong>captureContext2d(context2d)</strong></li>
+</ul>
+
+<p><blockquote>
+  <p>Captures a frame and draws it on to a canvas (stretched to fit)</p></p>
+
+<p><em>context2d</em> The 2d context used to draw the image on to a canvas</p>
+
+<p></blockquote></li>
+</ul></p>
+
+<h2>Examples</h2>
+
+<h3>Show video from camera</h3>
+
+<pre><code>cam.video(function(elm) {
+    if(elm)
+        document.body.appendChild(elm);
+}
+</code></pre>
+
+<h3>Show image from camera</h3>
+
+<pre><code>cam.image(function(elm) {
+    if(elm)
+        document.body.appendChild(elm);
+}
+</code></pre>
+
+<h3>Capture to canvas for processing</h3>
+
+<pre><code>var cap = new cam.Capture();
+var canvas = document.createElement("canvas");
+var ctx = canvas.getContext("2d");
+
+cap.start(function(cap) {
+    if(cap)
+        process();
+});
+
+function process() {
+    cap.captureContext2d(ctx);
+
+    //Your code here
+
+    setTimeout(process, 50);
+}
+</code></pre>

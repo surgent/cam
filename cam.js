@@ -32,15 +32,15 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 cam = {};
 
 /**
-* Checks if camera capture is possible (not 100% reliable for the true case)
-* @return true if camera capture is possible, false otherwise
+* Checks if camera capture is plausible
+* @return true if camera capture is plausible, false otherwise
 */
 cam.supported = function() {
     return typeof(navigator.getUserMedia) != "undefined";
 }
 
 /**
-* Gets an object url representing a camera stream for use as the src of <video> elements
+* Gets an object url representing a camera stream for use as the src of <video> elements or null on error
 * @param callback Will be called with and when parameters `url` and `stream` are ready
 */
 cam.media = function(callback) {
@@ -64,7 +64,7 @@ cam.media = function(callback) {
 }
 
 /**
-* Gets a <video> with a camera attached as the video source
+* Gets a <video> DOM element with a camera attached as the video source or null on error
 * @param callback Will be called with and when parameters `video`, `url`, and `stream` are ready
 */
 cam.video = function(callback) {
@@ -87,7 +87,7 @@ cam.video = function(callback) {
 }
 
 /**
-* Opens the camera, gets an <img> DOM element from it and closes the camera
+* Opens the camera, gets an <img> DOM element from it or null on error and closes the camera
 * @param callback Will be called with parameter `img` once an <img> DOM element is captured
 */
 cam.image = function(callback) {
@@ -173,7 +173,7 @@ cam.Capture = function() {
     
     /**
     * Starts a capturing session
-    * @param callback Will be called with this object as a parameter when the camera is ready
+    * @param callback Will be called with this object as a parameter when the camera is ready or null on error
     */
     this.start = function(callback) {
         cam.video(function(videoArg, oUrlArg, streamArg) {
@@ -183,7 +183,7 @@ cam.Capture = function() {
                 
             //Failed to initialize :(
             if(videoArg == null || oUrlArg == null || streamArg == null)
-                callback(_this);
+                callback(null);
         
             video = videoArg;
             oUrl = oUrlArg;
@@ -211,7 +211,7 @@ cam.Capture = function() {
     
     /**
     * Gets the capture width
-    * @return The width of the capture frame in pixels
+    * @return The width of the capture frame in pixels or null on error
     */
     this.width = function() {
         if(!started())
@@ -222,7 +222,7 @@ cam.Capture = function() {
     
     /**
     * Gets the capture height
-    * @return The height of the capture frame in pixels
+    * @return The height of the capture frame in pixels or null on error
     */
     this.height = function() {
         if(!started())
@@ -233,7 +233,7 @@ cam.Capture = function() {
     
     /**
     * Captures a frame and formats it as a base64 encoded png image file
-    * @return a base64 encoded png image file
+    * @return a base64 encoded png image file or null on error
     */
     this.captureDataURL = function() {
         if(!started())
@@ -245,7 +245,7 @@ cam.Capture = function() {
     
     /**
     * Captures a frame and creates an <img> DOM element from it
-    * @return an <img> DOM element
+    * @return an <img> DOM element or null on error
     */
     this.captureImage = function() {
         var dataURL = this.captureDataURL();
@@ -261,7 +261,7 @@ cam.Capture = function() {
     
     /**
     * Captures a frame and draws it on to a canvas (stretched to fit)
-    * @param context2d the 2d context used to draw the image on to a canvas
+    * @param context2d The 2d context used to draw the image on to a canvas
     */
     this.captureContext2d = function(context2d) {
         if(!(started() && context2d))
