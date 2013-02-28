@@ -3,7 +3,7 @@
 <p>A lightweight wrapper to simplify Javascript camera capture :)</p>
 
 <p>Provides browser agnostic shortcuts to get &lt;img&gt; and &lt;video&gt; DOM elements from a webcam.
-Also provides a Capture class for rapid successive still captures to data URLs, &lt;img&gt; DOM elements, or canvas 2d contexts.</p>
+Also provides a Capture class for rapid successive still captures to data URLs, &lt;img&gt; DOM elements, canvas 2d contexts, or ImageData objects.</p>
 
 <p>Currently supports Chrome, Opera, and Firefox.</p>
 
@@ -105,10 +105,24 @@ Firefox support is a little buggy at the moment since getUserMedia() is not tech
 <li><strong>captureContext2d(context2d)</strong></li>
 </ul>
 
-<p><blockquote>
-  <p>Captures a frame and draws it on to a canvas (stretched to fit)</p></p>
+<blockquote>
+  <p>Captures a frame and draws it on to a canvas (stretched to fit)</p>
 
 <p><em>context2d</em> The 2d context used to draw the image on to a canvas</p>
+</blockquote>
+
+<ul>
+<li><strong>captureImageData(width, height)</strong></li>
+</ul>
+
+<p><blockquote>
+  <p>Captures a frame as an ImageData object</p></p>
+
+<p><em>width</em> Width of the ImageData object, where 0 &lt; width &lt;= width()</p>
+
+<p><em>height</em> Height of the ImageData object, where 0 &lt; height &lt;= height()</p>
+
+<p>Returns a captured frame as an ImageData object or null on error</p>
 
 <p></blockquote></li>
 </ul></p>

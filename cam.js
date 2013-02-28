@@ -128,8 +128,11 @@ cam.Capture = function() {
             canvas.height = video.videoHeight;
         }
 
-        ctx.clearRect(0, 0, video.videoWidth, video.videoHeight);
-        ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        var width = arguments.length == 2 ? arguments[0] : video.videoWidth;
+        var height = arguments.length == 2 ? arguments[1] : video.videoHeight;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(video, 0, 0, width, height);
     }
     
     function waitFirstFrame(callback) {
@@ -270,5 +273,19 @@ cam.Capture = function() {
         var width = context2d.canvas.width;
         var height = context2d.canvas.height;
         context2d.drawImage(video, 0, 0, width, height);
+    }
+    
+    /**
+    * Captures a frame as an ImageData object
+    * @param width Width of the ImageData object, where 0 < width <= width()
+    * @param height Height of the ImageData object, where 0 < height <= height()
+    * @return an ImageData object or null on error
+    */
+    this.captureImageData = function(width, height) {
+        if(!started() || width < 1 || width > this.width() || height < 1 || height > this.height())
+            return null;
+            
+        grabFrame(width, height);
+        return canvas.getImageData(0, 0, width, height);
     }
 }
