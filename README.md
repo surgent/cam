@@ -7,9 +7,9 @@ Also provides a Capture class for rapid successive still captures to data URLs, 
 
 Currently supports Chrome, Opera, and Firefox.
 
-To get things working in Firefox go to "about:config", make your promise, search for "media.navigator.enabled", and double click it to set it to true if it is not already.
-Firefox support is a little buggy at the moment since getUserMedia() is not technically ready for prime-time on that browser yet (as of Firefox 19).
+To get things working in Firefox 18 or 19 go to "about:config", make your promise, search for "media.navigator.enabled", and double click it to set it to true if it is not already. Firefox 20+ is configured this way out of the box.
 
+There is a bug when using Firefox where cam.image() does not seem to work when a Capture session is already in progress. My guess is that multiple Capture sessions probably do not work in Firefox but I have not tested that yet.
 
 ## API Overview
 
@@ -95,14 +95,14 @@ Firefox support is a little buggy at the moment since getUserMedia() is not tech
     cam.video(function(elm) {
         if(elm)
             document.body.appendChild(elm);
-    }
+    });
 
 ### Show image from camera
 
     cam.image(function(elm) {
         if(elm)
             document.body.appendChild(elm);
-    }
+    });
 
 ### Capture to canvas for processing
 

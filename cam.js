@@ -22,11 +22,10 @@
 //Normalize out vendor prefixes
 window.requestAnimationFrame = window.requestAnimationFrame || 
                                window.webkitRequestAnimationFrame || 
-                               window.mozRequestAnimationFrame ||
-                               window.msRequestAnimationFrame;
+                               window.mozRequestAnimationFrame;
 window.URL = window.URL || window.webkitURL;
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || 
-                         navigator.mozGetUserMedia || navigator.msGetUserMedia;
+                         navigator.mozGetUserMedia;
 
 //Camera
 cam = {};
@@ -48,15 +47,15 @@ cam.media = function(callback) {
         callback(null, null);
         return;
     }
-    
+
     navigator.getUserMedia(
         {video:true, audio:false},
         function(stream) {
-            try { //Chrome
+            try { //Chrome and Firefox
                 var oUrl = window.URL.createObjectURL(stream);
                 callback(oUrl, stream);
             }
-            catch(err) { //Firefox and Opera
+            catch(err) { //Older Firefox and Opera
                 callback(stream, stream);
             }   
         },
@@ -72,17 +71,21 @@ cam.video = function(callback) {
         callback(null, null, null);
         return;
     }
-    
+
     var video = document.createElement("video");
-    
+
     cam.media(function(oUrl, stream) {
         if(oUrl == null || stream == null)
             callback(null, null, null);
-    
+
         //Firefox 18 uses mozSrcObject
         video.src = video.mozSrcObject = oUrl;
 
-        video.addEventListener('loadeddata', function() { callback(video, oUrl, stream); });
+        //loadeddata does not fire on Firefox 20!
+        if(navigator.userAgent.indexOf("Firefox/20") > 0)
+            video.addEventListener('loadedmetadata', function() { callback(video, oUrl, stream); });
+        else
+            video.addEventListener('loadeddata', function() { callback(video, oUrl, stream); });
     });
 }
 
@@ -92,7 +95,7 @@ cam.video = function(callback) {
 */
 cam.image = function(callback) {
     var cap = new cam.Capture();
-    
+
     cap.start(function() {
         var img = cap.captureImage();
         cap.stop();
@@ -110,11 +113,11 @@ cam.Capture = function() {
     var canvas = null;
     var ctx = null;
     var _this = this;
-    
+
     function started() {
         return video != null && oUrl != null && stream != null;
     }
-    
+
     function grabFrame() {
         if(!started())
             return;
@@ -134,10 +137,12 @@ cam.Capture = function() {
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(video, 0, 0, width, height);
     }
-    
+
     function waitFirstFrame(callback) {
-        //Firefox got it right
-        if(navigator.userAgent.indexOf("Chrome") < 0 && navigator.userAgent.indexOf("Opera") < 0) {
+        //Firefox got it right except for loadeddata not firing for version 20
+        if(navigator.userAgent.indexOf("Chrome") < 0 && 
+           navigator.userAgent.indexOf("Opera") < 0 &&
+           navigator.userAgent.indexOf("Firefox/20") < 0) {
             callback(_this);
             return;
         }
@@ -153,12 +158,21 @@ cam.Capture = function() {
             canvas.height = 4;
             ctx = canvas.getContext("2d");
         }
-        
-        _this.captureContext2d(ctx);
-        
+
+        //Firefox likes to throw "Component is not available"
+        try {
+            _this.captureContext2d(ctx);
+        }
+        catch(ex) {
+            setTimeout(function() {
+                waitFirstFrame(callback, ctx);
+            }, 50);
+            return;
+        }
+
         var idata = ctx.getImageData(0, 0, 4, 4);
         var data = idata.data;
-        
+
         //Sample pixels to see if we have a frame yet
         for(var i = 0; i < 16; ++i) {
             //Skip alpha channel
@@ -167,7 +181,7 @@ cam.Capture = function() {
                 return;
             }
         }
-        
+
         //No frame yet, try again in a little bit
         setTimeout(function() {
             waitFirstFrame(callback, ctx);
@@ -192,7 +206,7 @@ cam.Capture = function() {
             oUrl = oUrlArg;
             stream = streamArg;
             video.play();
-            
+
             waitFirstFrame(callback);
         });
     }
