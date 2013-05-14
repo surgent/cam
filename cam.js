@@ -139,10 +139,10 @@ cam.Capture = function() {
     }
 
     function waitFirstFrame(callback) {
-        //Firefox got it right except for loadeddata not firing for version 20
+        //Firefox 18-19 got things right
         if(navigator.userAgent.indexOf("Chrome") < 0 && 
            navigator.userAgent.indexOf("Opera") < 0 &&
-           navigator.userAgent.indexOf("Firefox/20") < 0) {
+           !/Firefox\/2[01]/.test(navigator.userAgent) ) {
             callback(_this);
             return;
         }
@@ -159,7 +159,7 @@ cam.Capture = function() {
             ctx = canvas.getContext("2d");
         }
 
-        //Firefox likes to throw "Component is not available"
+        //Firefox 20-21 likes to throw "Component is not available"
         try {
             _this.captureContext2d(ctx);
         }
