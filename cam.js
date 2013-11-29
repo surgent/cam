@@ -81,7 +81,7 @@ cam.video = function(callback) {
         //Firefox 18 uses mozSrcObject
         video.src = video.mozSrcObject = oUrl;
 
-        //loadeddata does not fire on Firefox 20!
+        //loadeddata does not fire on Firefox 20
         if(navigator.userAgent.indexOf("Firefox/20") > 0)
             video.addEventListener('loadedmetadata', function() { callback(video, oUrl, stream); });
         else
@@ -142,7 +142,7 @@ cam.Capture = function() {
         //Firefox 18-19 got things right
         if(navigator.userAgent.indexOf("Chrome") < 0 && 
            navigator.userAgent.indexOf("Opera") < 0 &&
-           !/Firefox\/2[01]/.test(navigator.userAgent) ) {
+           /Firefox\/1[89]/.test(navigator.userAgent) ) {
             callback(_this);
             return;
         }

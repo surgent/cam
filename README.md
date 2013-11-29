@@ -5,7 +5,7 @@ A lightweight wrapper to simplify Javascript camera capture :)
 Provides browser agnostic shortcuts to get &lt;img&gt; and &lt;video&gt; DOM elements from a webcam.
 Also provides a Capture class for rapid successive still captures to data URLs, &lt;img&gt; DOM elements, canvas 2d contexts, or ImageData objects.
 
-Currently supports Chrome, Opera, and Firefox.
+Currently supports Chrome, Opera 12, and Firefox.
 
 To get things working in Firefox 18 or 19 go to "about:config", make your promise, search for "media.navigator.enabled", and double click it to set it to true if it is not already. Firefox 20+ is configured this way out of the box.
 
